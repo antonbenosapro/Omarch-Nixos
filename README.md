@@ -19,20 +19,9 @@ The script will automatically:
 2. Symlink `hypr`, `omarchy`, `home-manager`, `direnv`, and `aether` configurations.
 3. Install and activate **Home Manager** (`home-manager switch`).
 4. Set up modern shell tools (`eza`, `bat`, `ripgrep`, `fd`, `fzf`, `just`, etc.) and git credentials.
-
----
-
-## 📦 Restoring Native / AUR Packages (Optional)
-
-If setting up a fresh machine and you want the exact system-level packages:
-
-```bash
-# Official Arch packages
-sudo pacman -S --needed - < ~/dotfiles/packages/native-packages.txt
-
-# AUR packages (via yay or paru)
-yay -S --needed - < ~/dotfiles/packages/aur-packages.txt
-```
+5. Prompt to restore native Arch (`pacman`) and AUR (`yay`/`paru`) packages from manifests.
+6. Enable the automated hourly **auto-sync systemd user timer** (`dotfiles-sync.timer`).
+7. Reload your shell session.
 
 ---
 

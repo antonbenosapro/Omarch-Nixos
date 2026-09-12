@@ -1,0 +1,11 @@
+[Unit]
+Description=Hourly auto-sync of dotfiles to GitHub
+PartOf=dotfiles-sync.service
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=Auto-sync Omarchy and Nix dotfiles to GitHub
+Documentation=file:///home/anton/dotfiles/README.md
+
+[Service]
+Type=oneshot
+ExecStart=/home/anton/dotfiles/sync.sh
+StandardOutput=journal
+StandardError=journal
