@@ -1,0 +1,495 @@
+// DockModel.js - Core logic for macOS-style dock in Omarchy
+
+var defaultSettings = {
+  iconSize: 34, magnification: 1.6, spacing: 6, opacity: 0.76,
+  revealDelay: 0, hideDelay: 220, windowScope: "all"
+};
+
+function normalizeSettings(input) {
+  input = input && typeof input === "object" ? input : {};
+  var result = {};
+  var ranges = {
+    iconSize: [24, 64], magnification: [1, 2], spacing: [2, 16],
+    opacity: [0.2, 1], revealDelay: [0, 1000], hideDelay: [100, 2000]
+  };
+  for (var key in ranges) {
+    var value = input[key];
+    result[key] = typeof value === "number" && isFinite(value)
+      ? Math.max(ranges[key][0], Math.min(ranges[key][1], value))
+      : defaultSettings[key];
+  }
+  result.windowScope = ["all", "monitor", "workspace"].indexOf(input.windowScope) >= 0
+    ? input.windowScope : "all";
+  return result;
+}
+
+function windowMetadata(win, metadata) {
+  for (var i = 0; i < metadata.length; i++) {
+    if (metadata[i].window === win) return metadata[i];
+  }
+  return null;
+}
+
+// Keep the original Wayland handles so focus and close always target one window.
+function filterWindows(windows, metadata, scope, monitorName, workspaceId) {
+  var list = toArray(windows);
+  if (scope !== "monitor" && scope !== "workspace") return list;
+  return list.filter(function(win) {
+    var info = windowMetadata(win, metadata);
+    if (!info || !monitorName || info.monitorName !== monitorName) return false;
+    return scope === "monitor" || (workspaceId !== null && workspaceId !== undefined
+      && info.workspaceId === workspaceId);
+  });
+}
+
+function pickerRows(item, metadata) {
+  return toArray(item ? item.windows : []).filter(function(win) { return !!win; }).map(function(win) {
+    var info = windowMetadata(win, metadata);
+    return {
+      window: win,
+      title: String(win.title || (item && item.name) || "Untitled window"),
+      location: info ? ((info.workspaceName ? "Workspace " + info.workspaceName : "")
+        + (info.monitorName ? " · " + info.monitorName : "")) : "",
+      active: !!win.activated
+    };
+  });
+}
+
+function activateWindow(win) {
+  if (!win || typeof win.activate !== "function") return;
+  try { win.activate(); } catch (e) {}
+}
+
+var defaultPinnedApps = [
+  "vivaldi-stable",
+  "Alacritty",
+  "org.gnome.Nautilus",
+  "dev.zed.Zed",
+  "elecwhat",
+  "Discord",
+  "obsidian"
+];
+
+// Qt exposes QQmlListProperty/QList values as array-like sequences. They are
+// indexable from QML JavaScript but Array.isArray() returns false, so treating
+// only native arrays as valid silently drops every open window.
+function toArray(values) {
+  if (!values) return [];
+  if (Array.isArray(values)) return values;
+
+  var result = [];
+  var length = Number(values.length);
+  if (!isNaN(length) && length >= 0) {
+    for (var i = 0; i < length; i++) result.push(values[i]);
+  }
+  return result;
+}
+
+// Preserve release channels: separate installations must not share windows or pins.
+var commonSuffixes = /-(stable|bin|git|oss|browser|desktop|electron|community)$/i;
+
+function cleanAppId(id) {
+  if (!id) return "";
+  var s = String(id).trim().toLowerCase().replace(/\.desktop$/i, "");
+  // For reverse-DNS identifiers (e.g. org.gnome.Nautilus, io.github.user.app, dev.zed.Zed, com.spotify.Client)
+  if (s.indexOf(".") !== -1) {
+    var parts = s.split(".");
+    var last = parts[parts.length - 1];
+    if ((last === "client" || last === "desktop" || last === "app" || last === "ui") && parts.length > 2) {
+      s = parts[parts.length - 2];
+    } else {
+      s = last;
+    }
+  }
+  return s.replace(commonSuffixes, "").replace(/[^a-z0-9]/g, "");
+}
+
+function normalizeId(id) {
+  if (!id) return "";
+  return cleanAppId(id) || String(id).toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function matchApp(appIdA, appIdB) {
+  if (!appIdA || !appIdB) return false;
+  var a = normalizeId(appIdA);
+  var b = normalizeId(appIdB);
+  if (!a || !b) return false;
+  if (a === b) return true;
+
+  // Exact raw compare without .desktop
+  var rawA = String(appIdA).toLowerCase().replace(/\.desktop$/i, "");
+  var rawB = String(appIdB).toLowerCase().replace(/\.desktop$/i, "");
+  if (rawA === rawB) return true;
+
+  // Terminal aliases & generic fallback
+  var termNames = ["alacritty", "kitty", "ghostty", "foot", "terminal", "orgomarchyagent", "agent"];
+  if ((a === "terminal" && termNames.indexOf(b) !== -1) || (b === "terminal" && termNames.indexOf(a) !== -1)) return true;
+  if ((a === "orgomarchyagent" || a === "agent") && b === "foot") return true;
+  if ((b === "orgomarchyagent" || b === "agent") && a === "foot") return true;
+
+  // Browser fallbacks
+  var browserNames = ["vivaldistable", "vivaldi", "chromium", "googlechrome", "firefox", "brave"];
+  if (a === "browser" && browserNames.indexOf(b) !== -1) return true;
+  if (b === "browser" && browserNames.indexOf(a) !== -1) return true;
+
+  return false;
+}
+
+function entryAliases(entry, fallbackId) {
+  var aliases = [fallbackId];
+  if (!entry) return aliases;
+
+  aliases.push(entry.id || "");
+  aliases.push(entry.startupClass || "");
+  aliases.push(entry.name || "");
+
+  var genericExes = ["python", "python3", "bash", "sh", "flatpak", "uwsm", "uwsm-app", "electron"];
+  var command = toArray(entry.command);
+  if (command.length > 0) {
+    var cmdExe = String(command[0]).replace(/^.*\//, "");
+    if (genericExes.indexOf(cmdExe) === -1) aliases.push(cmdExe);
+  }
+  if (entry.execString) {
+    var rawExe = String(entry.execString).split(/\s+/)[0].replace(/^.*\//, "");
+    if (genericExes.indexOf(rawExe) === -1) aliases.push(rawExe);
+  }
+  return aliases;
+}
+
+function windowAliases(win) {
+  if (!win) return [];
+  return [
+    win.appId || "",
+    win.initialClass || "",
+    win.class || ""
+  ];
+}
+
+function entryMatchesWindow(entry, fallbackId, win) {
+  var appAliases = entryAliases(entry, fallbackId);
+  var winAliases = windowAliases(win);
+  for (var a = 0; a < appAliases.length; a++) {
+    for (var w = 0; w < winAliases.length; w++) {
+      if (matchApp(appAliases[a], winAliases[w])) return true;
+    }
+  }
+  return false;
+}
+
+function findDesktopEntry(desktopEntries, appId) {
+  if (!desktopEntries || !appId) return null;
+  var id = String(appId);
+
+  var entry = desktopEntries.byId ? desktopEntries.byId(id) : null;
+  if (entry) return entry;
+
+  entry = desktopEntries.byId ? desktopEntries.byId(id.toLowerCase()) : null;
+  if (entry) return entry;
+
+  if (desktopEntries.heuristicLookup) {
+    entry = desktopEntries.heuristicLookup(id);
+    if (entry) return entry;
+  }
+
+  if (desktopEntries.applications) {
+    var apps = toArray(desktopEntries.applications.values);
+    for (var i = 0; i < apps.length; i++) {
+      var item = apps[i];
+      if (item && item.id && matchApp(item.id, id)) {
+        return item;
+      }
+    }
+  }
+
+  return null;
+}
+
+function resolveIcon(iconName, appLibrary, Quickshell) {
+  var name = String(iconName || "").trim();
+  if (!name) {
+    return (Quickshell && typeof Quickshell.iconPath === "function")
+      ? Quickshell.iconPath("application-x-executable", true)
+      : "";
+  }
+  if (name.indexOf("file://") === 0 || name.indexOf("image://") === 0) {
+    return name;
+  }
+  if (name.charAt(0) === "/") {
+    return "file://" + name;
+  }
+  if (appLibrary && typeof appLibrary.iconSource === "function") {
+    var src = appLibrary.iconSource(name);
+    if (src && src.length > 0) return src;
+  }
+  if (Quickshell && typeof Quickshell.iconPath === "function") {
+    var themed = Quickshell.iconPath(name, true);
+    if (themed && themed.length > 0) return themed;
+    return Quickshell.iconPath("application-x-executable", true);
+  }
+  return name;
+}
+
+function buildDockItems(toplevels, desktopEntries, appLibrary, Quickshell, customPinned) {
+  var pinnedConfig = Array.isArray(customPinned)
+    ? customPinned
+    : defaultPinnedApps;
+
+  var windowList = toArray(toplevels);
+  var matchedWindows = {};
+
+  var pinnedList = [];
+  for (var i = 0; i < pinnedConfig.length; i++) {
+    var pin = pinnedConfig[i];
+    var pinId = typeof pin === "string" ? pin : (pin.id || "");
+    if (!pinId) continue;
+
+    var entry = findDesktopEntry(desktopEntries, pinId);
+    var displayName = (entry && entry.name) ? entry.name : (pin.name || pinId);
+    var rawIcon = (entry && entry.icon) ? entry.icon : (pin.icon || pinId);
+    var resolvedIcon = resolveIcon(rawIcon, appLibrary, Quickshell);
+
+    var appWindows = [];
+    var isFocused = false;
+
+    for (var w = 0; w < windowList.length; w++) {
+      if (matchedWindows[w]) continue;
+      var win = windowList[w];
+      if (!win) continue;
+      if (entryMatchesWindow(entry, pinId, win)) {
+        appWindows.push(win);
+        matchedWindows[w] = true;
+        if (win.activated) {
+          isFocused = true;
+        }
+      }
+    }
+
+    pinnedList.push({
+      key: "pin_" + pinId,
+      id: (entry && entry.id) ? entry.id : pinId,
+      name: displayName,
+      icon: resolvedIcon,
+      desktopEntry: entry,
+      isPinned: true,
+      isRunning: appWindows.length > 0,
+      isFocused: isFocused,
+      windowCount: appWindows.length,
+      windows: appWindows
+    });
+  }
+
+  // Group remaining unpinned running windows
+  var runningMap = Object.create(null);
+  var runningOrder = [];
+
+  for (var k = 0; k < windowList.length; k++) {
+    if (matchedWindows[k]) continue;
+    var toplevel = windowList[k];
+    if (!toplevel) continue;
+    if (toplevel.parent) continue;
+
+    var rawAppId = String(toplevel.appId || toplevel.initialClass || toplevel.class || "").trim();
+    if (!rawAppId) continue;
+    var dEntry = findDesktopEntry(desktopEntries, rawAppId);
+    var normKey = normalizeId((dEntry && dEntry.id) ? dEntry.id : rawAppId);
+    if (!normKey) normKey = rawAppId || ("win_" + k);
+
+    if (!runningMap[normKey]) {
+      var name = (dEntry && dEntry.name) ? dEntry.name : (toplevel.title || rawAppId);
+      var icn = (dEntry && dEntry.icon) ? dEntry.icon : rawAppId;
+      var iconPath = resolveIcon(icn, appLibrary, Quickshell);
+
+      runningMap[normKey] = {
+        key: "run_" + normKey,
+        id: (dEntry && dEntry.id) ? dEntry.id : rawAppId,
+        name: name,
+        icon: iconPath,
+        desktopEntry: dEntry,
+        isPinned: false,
+        isRunning: true,
+        isFocused: false,
+        windowCount: 0,
+        windows: []
+      };
+      runningOrder.push(normKey);
+    }
+
+    runningMap[normKey].windows.push(toplevel);
+    runningMap[normKey].windowCount++;
+    if (toplevel.activated) {
+      runningMap[normKey].isFocused = true;
+    }
+  }
+
+  var unpinnedList = [];
+  for (var r = 0; r < runningOrder.length; r++) {
+    unpinnedList.push(runningMap[runningOrder[r]]);
+  }
+
+  return {
+    pinned: pinnedList,
+    unpinned: unpinnedList,
+    totalItems: pinnedList.length + unpinnedList.length
+  };
+}
+
+function resolveLaunchId(item, desktopEntries) {
+  if (!item) return "";
+  if (item.desktopEntry && item.desktopEntry.id) {
+    return String(item.desktopEntry.id).replace(/\.desktop$/i, "");
+  }
+  var rawId = String(item.id || "").replace(/\.desktop$/i, "");
+  if (!rawId) return "";
+  if (desktopEntries) {
+    var entry = findDesktopEntry(desktopEntries, rawId);
+    if (entry && entry.id) {
+      return String(entry.id).replace(/\.desktop$/i, "");
+    }
+  }
+  return rawId;
+}
+
+function handleItemClick(item, Util, appLibrary, desktopEntries) {
+  if (!item) return;
+
+  if (item.isRunning && item.windows && item.windows.length > 0) {
+    var windows = item.windows;
+    var activeIdx = -1;
+    for (var i = 0; i < windows.length; i++) {
+      if (windows[i] && windows[i].activated) {
+        activeIdx = i;
+        break;
+      }
+    }
+    // If one of its windows is already active:
+    // - If multiple windows exist, cycle to the next window.
+    // - If only 1 window exists, leave it in place.
+    if (activeIdx !== -1) {
+      if (windows.length > 1) {
+        var nextIdx = (activeIdx + 1) % windows.length;
+        if (windows[nextIdx] && typeof windows[nextIdx].activate === "function") {
+          windows[nextIdx].activate();
+        }
+      }
+      return;
+    }
+    for (var j = 0; j < windows.length; j++) {
+      if (windows[j] && typeof windows[j].activate === "function") {
+        windows[j].activate();
+        return;
+      }
+    }
+    return;
+  }
+
+  var launchId = resolveLaunchId(item, desktopEntries);
+  if (!launchId) return;
+
+  var appName = item.name || launchId;
+
+  if (appLibrary && typeof appLibrary.launch === "function") {
+    try {
+      appLibrary.launch(launchId, appName);
+      return;
+    } catch (e) {}
+  }
+
+  if (Util && typeof Util.execDetached === "function") {
+    Util.execDetached("uwsm-app -- gtk-launch " + Util.shellQuote(launchId + ".desktop"));
+  }
+}
+
+function closeAppWindow(item) {
+  if (!item || !item.windows || item.windows.length === 0) return;
+  var target = null;
+  for (var i = 0; i < item.windows.length; i++) {
+    var win = item.windows[i];
+    if (win && typeof win.close === "function") {
+      if (!target) target = win;
+      if (win.activated) {
+        target = win;
+        break;
+      }
+    }
+  }
+  // Close the focused window, or the first available window if this app is
+  // unfocused. A failed close must never cascade into closing other windows.
+  if (target) {
+    try { target.close(); } catch (e) {}
+  }
+}
+
+// Raised cosine bell: continuous slope at both ends, with a wider shoulder
+// than smoothstep. It makes adjacent icons participate in the magnification
+// wave instead of snapping between a large icon and nearly resting neighbors.
+function scaleFromDistance(dist, maxScale, radius) {
+  var limit = radius || 140;
+  var topScale = maxScale || 1.6;
+  if (dist >= limit) return 1.0;
+  var norm = dist / limit;
+  var cosine = Math.cos(norm * Math.PI / 2);
+  return 1.0 + (topScale - 1.0) * cosine * cosine;
+}
+
+// Return transform-only horizontal offsets for a centered row of fixed slots.
+// Each magnified icon contributes visual width; half is distributed to either
+// side so the wave stays centered and neighboring icons never collide.
+function computeMagnifiedOffsets(scales, baseSize, expansionRatio) {
+  var values = Array.isArray(scales) ? scales : [];
+  var ratio = typeof expansionRatio === "number" ? expansionRatio : 0.82;
+  var extras = [];
+  var totalExtra = 0;
+
+  for (var i = 0; i < values.length; i++) {
+    var extra = Math.max(0, (Number(values[i]) - 1.0) * baseSize * ratio);
+    extras.push(extra);
+    totalExtra += extra;
+  }
+
+  var offsets = [];
+  var cursor = -totalExtra / 2;
+  for (var j = 0; j < extras.length; j++) {
+    offsets.push(cursor + extras[j] / 2);
+    cursor += extras[j];
+  }
+  offsets.totalExtra = totalExtra;
+  return offsets;
+}
+
+// Calculate fixed unmagnified baseline coordinates
+function computeBaselineCenters(baseSize, spacing, pad, pinnedCount, unpinnedCount) {
+  var curX = pad;
+  var sepWidth = 7;
+
+  // Applications launcher and its following separator
+  var launcherCenter = curX + baseSize / 2;
+  curX += baseSize + spacing + sepWidth;
+
+  // Pinned items
+  var pinnedCenters = [];
+  for (var p = 0; p < pinnedCount; p++) {
+    pinnedCenters.push(curX + baseSize / 2);
+    curX += baseSize + spacing;
+  }
+
+  // Unpinned items
+  var unpinnedCenters = [];
+  if (unpinnedCount > 0) {
+    if (pinnedCount > 0) {
+      curX += sepWidth;
+    }
+    for (var u = 0; u < unpinnedCount; u++) {
+      unpinnedCenters.push(curX + baseSize / 2);
+      curX += baseSize + spacing;
+    }
+  }
+
+  var totalBaseWidth = curX - spacing + pad;
+
+  return {
+    launcher: launcherCenter,
+    pinned: pinnedCenters,
+    unpinned: unpinnedCenters,
+    totalBaseWidth: totalBaseWidth
+  };
+}

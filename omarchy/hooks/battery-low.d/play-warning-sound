@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Low battery audio alert hook
+# Called with battery percentage as $1 when the battery drops to/below threshold
+
+# Skip if continuous critical alarm is already actively playing
+if [[ -f /tmp/omarchy-battery-alarm.pid ]] && kill -0 "$(cat /tmp/omarchy-battery-alarm.pid 2>/dev/null)" 2>/dev/null; then
+  exit 0
+fi
+
+SOUND_FILE="/usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga"
+
+if omarchy-cmd-present mpv && [[ -f "$SOUND_FILE" ]]; then
+  mpv --no-video "$SOUND_FILE" >/dev/null 2>&1
+elif omarchy-cmd-present pw-play && [[ -f "$SOUND_FILE" ]]; then
+  pw-play "$SOUND_FILE" >/dev/null 2>&1
+elif omarchy-cmd-present canberra-gtk-play; then
+  canberra-gtk-play -i dialog-warning >/dev/null 2>&1
+elif omarchy-cmd-present paplay && [[ -f "$SOUND_FILE" ]]; then
+  paplay "$SOUND_FILE" >/dev/null 2>&1
+fi

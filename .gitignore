@@ -1,0 +1,8 @@
+*.bak*
+*.backup
+*~
+.direnv/
+result
+result-*
+.DS_Store
+crash-ignore

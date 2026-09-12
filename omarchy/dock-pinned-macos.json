@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "settings": {
+    "iconSize": 40,
+    "magnification": 1.6,
+    "spacing": 6,
+    "opacity": 0.76,
+    "revealDelay": 0,
+    "hideDelay": 400,
+    "windowScope": "all"
+  },
+  "autoHide": false,
+  "reserveSpace": true,
+  "pinned": [
+    "Alacritty",
+    "ghostty",
+    "org.gnome.Nautilus",
+    "dev.zed.Zed",
+    "chromium",
+    "brave-browser",
+    "Discord",
+    "obsidian",
+    "cliamp",
+    "spotify"
+  ]
+}
