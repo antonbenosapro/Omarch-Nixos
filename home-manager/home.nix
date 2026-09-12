@@ -100,6 +100,7 @@
       nrun   = "nix run";
       nsearch = "nix search nixpkgs";
       ngc    = "nix-collect-garbage -d";
+      dotsync = "~/dotfiles/sync.sh";
     };
 
     initExtra = ''
