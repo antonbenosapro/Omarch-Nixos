@@ -79,8 +79,35 @@ link_config "$DOTFILES_DIR/omarchy"      "$HOME/.config/omarchy"
 link_config "$DOTFILES_DIR/direnv"       "$HOME/.config/direnv"
 [ -d "$DOTFILES_DIR/aether" ] && link_config "$DOTFILES_DIR/aether" "$HOME/.config/aether"
 
+# Link developer tools & terminals
+if [ -d "$DOTFILES_DIR/config" ]; then
+    for tool_path in "$DOTFILES_DIR/config"/*; do
+        tool_name="$(basename "$tool_path")"
+        if [ "$tool_name" = "starship.toml" ]; then
+            link_config "$tool_path" "$HOME/.config/starship.toml"
+        else
+            link_config "$tool_path" "$HOME/.config/$tool_name"
+        fi
+    done
+fi
+
 # ─────────────────────────────────────────────
-# 4. Install & Activate Home Manager
+# 4. Bootstrap 'mise' Version Manager & Runtimes
+# ─────────────────────────────────────────────
+if ! command -v mise &>/dev/null; then
+    info "Installing mise version manager..."
+    curl -fsSL https://mise.run | sh || warn "Could not install mise via curl."
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+
+if command -v mise &>/dev/null; then
+    info "Installing mise toolchains (Node, Claude, Gemini, OpenCode, etc.)..."
+    mise install -y 2>/dev/null || warn "Some mise tools failed to install."
+    ok "mise toolchains ready."
+fi
+
+# ─────────────────────────────────────────────
+# 5. Install & Activate Home Manager
 # ─────────────────────────────────────────────
 if ! command -v home-manager &>/dev/null; then
     info "Setting up Home Manager..."
@@ -95,7 +122,7 @@ home-manager switch -b backup
 ok "Home Manager configuration applied."
 
 # ─────────────────────────────────────────────
-# 5. Restore Native & AUR System Packages
+# 6. Restore Native & AUR System Packages
 # ─────────────────────────────────────────────
 if command -v pacman &>/dev/null; then
     echo ""
@@ -113,7 +140,16 @@ if command -v pacman &>/dev/null; then
             ok "Native packages installed."
         fi
 
+        # Ensure yay is available if AUR packages are requested
         if [ -f "$DOTFILES_DIR/packages/aur-packages.txt" ]; then
+            if ! command -v yay &>/dev/null && ! command -v paru &>/dev/null; then
+                info "Bootstrapping 'yay' AUR helper..."
+                sudo pacman -S --needed --noconfirm base-devel git
+                git clone https://aur.archlinux.org/yay-bin.git /tmp/yay-bin
+                (cd /tmp/yay-bin && makepkg -si --noconfirm) || warn "Failed to build yay-bin."
+                rm -rf /tmp/yay-bin
+            fi
+
             if command -v yay &>/dev/null; then
                 info "Installing AUR packages via yay..."
                 yay -S --needed --noconfirm - < "$DOTFILES_DIR/packages/aur-packages.txt" || warn "Some AUR packages failed to install."
@@ -124,14 +160,37 @@ if command -v pacman &>/dev/null; then
                 ok "AUR packages installed."
             else
                 warn "Neither 'yay' nor 'paru' was found. Skipping AUR packages."
-                echo "  You can install them later using: yay -S --needed - < $DOTFILES_DIR/packages/aur-packages.txt"
             fi
         fi
     fi
 fi
 
 # ─────────────────────────────────────────────
-# 6. Enable Hourly Auto-Sync Timer
+# 7. Optional SSH Key Setup for GitHub
+# ─────────────────────────────────────────────
+if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
+    echo ""
+    GEN_SSH="y"
+    if [ -t 0 ]; then
+        read -r -p "Generate and upload a new SSH key to your GitHub account? [Y/n] " ssh_resp
+        ssh_resp=${ssh_resp:-y}
+        [[ ! "$ssh_resp" =~ ^[Yy]$ ]] && GEN_SSH="n"
+    fi
+
+    if [ "$GEN_SSH" = "y" ]; then
+        mkdir -p "$HOME/.ssh"
+        chmod 700 "$HOME/.ssh"
+        ssh-keygen -t ed25519 -C "antonbenosapro@gmail.com" -f "$HOME/.ssh/id_ed25519" -N ""
+        ok "SSH key generated at ~/.ssh/id_ed25519"
+        if command -v gh &>/dev/null && gh auth status &>/dev/null; then
+            gh ssh-key add "$HOME/.ssh/id_ed25519.pub" --title "$(hostname)-$(date +%Y%m%d)" || true
+            ok "SSH public key registered with your GitHub account."
+        fi
+    fi
+fi
+
+# ─────────────────────────────────────────────
+# 8. Enable Hourly Auto-Sync Timer
 # ─────────────────────────────────────────────
 info "Setting up automated dotfiles sync (systemd user timer)..."
 mkdir -p ~/.config/systemd/user
@@ -143,7 +202,7 @@ if [ -d "$DOTFILES_DIR/systemd/user" ]; then
 fi
 
 # ─────────────────────────────────────────────
-# 7. Complete & Shell Reload
+# 9. Complete & Shell Reload
 # ─────────────────────────────────────────────
 echo ""
 echo "=============================================================================="

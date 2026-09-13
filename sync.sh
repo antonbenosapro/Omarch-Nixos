@@ -17,6 +17,15 @@ rsync -a --exclude="*.bak*" "$HOME/.config/direnv/" "$DOTFILES_DIR/direnv/"
 [ -d "$HOME/.config/aether" ] && rsync -a "$HOME/.config/aether/" "$DOTFILES_DIR/aether/"
 [ -f "$HOME/.config/nix/nix.conf" ] && cp "$HOME/.config/nix/nix.conf" "$DOTFILES_DIR/nix/"
 
+# Sync developer tools & terminals
+for tool in mise helix tmux lazygit alacritty foot ghostty kitty; do
+    if [ -d "$HOME/.config/$tool" ]; then
+        mkdir -p "$DOTFILES_DIR/config/$tool"
+        rsync -a --exclude="*.bak*" "$HOME/.config/$tool/" "$DOTFILES_DIR/config/$tool/"
+    fi
+done
+[ -f "$HOME/.config/starship.toml" ] && cp "$HOME/.config/starship.toml" "$DOTFILES_DIR/config/starship.toml"
+
 # 2. Update installed package lists
 pacman -Qqen > "$DOTFILES_DIR/packages/native-packages.txt" 2>/dev/null || true
 pacman -Qqem > "$DOTFILES_DIR/packages/aur-packages.txt" 2>/dev/null || true
