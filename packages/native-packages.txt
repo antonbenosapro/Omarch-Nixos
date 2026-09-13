@@ -23,12 +23,14 @@ ddcutil
 deepin-calculator
 direnv
 dmidecode
+dnsmasq
 docker
 docker-buildx
 docker-compose
 dosfstools
 dotnet-runtime
 dua-cli
+edk2-ovmf
 efibootmgr
 evince
 exfatprogs
@@ -87,6 +89,7 @@ lib32-vulkan-intel
 libpulse
 libreoffice-fresh
 libvips
+libvirt
 libyaml
 limine
 linux
@@ -136,6 +139,7 @@ power-profiles-daemon
 python-adblock
 python-gobject
 python-poetry-core
+qemu-full
 qemu-user-static-binfmt
 qrencode
 quickshell
@@ -153,6 +157,7 @@ starship
 steam
 sudo
 sushi
+swtpm
 syncthing
 system-config-printer
 tailscale
@@ -175,6 +180,8 @@ ufw
 ufw-docker
 usage
 uwsm
+virt-manager
+virt-viewer
 voxtype-bin
 vpl-gpu-rt
 vulkan-intel
