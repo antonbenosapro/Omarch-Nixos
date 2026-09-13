@@ -48,6 +48,7 @@ gcompris-qt
 geogebra
 ghostty
 git
+gnome-clocks
 gnome-disk-utility
 gnome-keyring
 gnome-themes-extra

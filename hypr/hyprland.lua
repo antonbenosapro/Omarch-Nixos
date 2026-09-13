@@ -35,3 +35,18 @@ o.window({ class = "^(.*(install4j|jclient|ib-tws).*)$", title = "^(?!.*Trader W
 -- Terminal window rules: visible border to distinguish terminal windows
 o.window({ tag = "terminal" }, { border_size = 2, border_color = "rgba(89b4faee) rgba(45475aaa)" })
 
+-- Floating Clock: float, pin across all workspaces, no border, full opacity
+o.window({ class = "^(floating-clock)$" }, {
+  tag = "-default-opacity",
+  float = true,
+  pin = true,
+  border_size = 0,
+  opacity = "1 1",
+})
+
+-- GNOME Clocks: float as a compact window
+o.window({ class = "^(org.gnome.clocks)$" }, {
+  float = true,
+  size = { 720, 540 },
+})
+

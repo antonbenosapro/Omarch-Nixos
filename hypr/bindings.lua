@@ -30,3 +30,6 @@
 
 -- Email client (aerc)
 o.bind("SUPER + M", "Email (aerc)", "foot -T 'aerc - email' aerc")
+
+-- Floating Clock
+o.bind("SUPER + ALT + C", "Floating Clock", "/home/anton/.local/bin/floating-clock")

@@ -48,7 +48,12 @@
       ],
       "right": [
         {
-          "id": "omarchy.tray"
+          "id": "omarchy.tray",
+          "pinned": [
+            "TelegramDesktop",
+            "indicator-timekpr"
+          ],
+          "hidden": []
         },
         {
           "id": "omarchy.tailscale"
