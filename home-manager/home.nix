@@ -94,6 +94,10 @@
       gp     = "git push";
       gpl    = "git pull";
 
+      # Navigation shortcuts
+      v      = "cd ~/Vault && eza --icons";
+      vault  = "cd ~/Vault && eza --icons";
+
       # Nix shortcuts
       hms    = "home-manager switch";
       ndev   = "nix develop";
