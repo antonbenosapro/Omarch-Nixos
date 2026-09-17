@@ -1,6 +1,5 @@
 brave-bin
 google-chrome
-ib-tws
 microsoft-edge-stable-bin
 sddm-astronaut-theme
 sddm-sugar-candy-git
