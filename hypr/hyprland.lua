@@ -30,7 +30,8 @@ require("default.hypr.toggles")
 
 -- Interactive Brokers TWS optimizations: full opacity, no mouse hover steal, and float dialogs/popups
 o.window("^(.*(install4j|jclient|ib-tws).*)$", { tag = "-default-opacity", opacity = "1.0 1.0", no_follow_mouse = true })
-o.window({ class = "^(.*(install4j|jclient|ib-tws).*)$", title = "^(?!.*Trader Workstation).*$" }, { float = true })
+o.window("^(.*(ib-tws|jclient).*|.*install4j.*)$", { float = true })
+o.window({ class = "^(.*(ib-tws|jclient).*)$", title = "^(.*Interactive Brokers.*)$" }, { tile = true })
 
 -- Terminal window rules: visible border to distinguish terminal windows
 o.window({ tag = "terminal" }, { border_size = 2, border_color = "rgba(89b4faee) rgba(45475aaa)" })
