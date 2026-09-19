@@ -11,16 +11,16 @@
           "id": "omarchy.system-update"
         },
         {
-          "format": "ddd d MMM h:mm AP",
-          "formatAlt": "d MMMM 'W'ww yyyy",
-          "id": "omarchy.clock",
-          "verticalFormat": "HH\n—\nmm"
-        },
-        {
           "id": "omarchy.weather"
         },
         {
           "id": "omarchy.media"
+        },
+        {
+          "format": "ddd d MMM h:mm AP",
+          "formatAlt": "d MMMM 'W'ww yyyy",
+          "id": "omarchy.clock",
+          "verticalFormat": "HH\n—\nmm"
         },
         {
           "id": "omarchy.spacer"
