@@ -78,8 +78,8 @@
         }
       ]
     },
-    "position": "left",
-    "transparent": false
+    "position": "top",
+    "transparent": true
   },
   "cloneSourceRestores": [
     "anton.battery",
