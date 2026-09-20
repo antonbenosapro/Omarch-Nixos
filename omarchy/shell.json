@@ -14,7 +14,7 @@
           "id": "omarchy.weather"
         },
         {
-          "id": "omarchy.media"
+          "id": "akshar.radio-atlas"
         },
         {
           "format": "ddd d MMM h:mm AP",
@@ -31,9 +31,6 @@
       ],
       "left": [
         {
-          "id": "omarchy.active-window"
-        },
-        {
           "id": "omarchy.menu"
         },
         {
@@ -43,10 +40,13 @@
           "id": "omarchy.workspaces"
         },
         {
-          "id": "akshar.radio-atlas"
+          "id": "omarchy.media"
         }
       ],
       "right": [
+        {
+          "id": "omarchy.active-window"
+        },
         {
           "id": "omarchy.tray",
           "pinned": [
@@ -79,7 +79,7 @@
       ]
     },
     "position": "top",
-    "transparent": true
+    "transparent": false
   },
   "cloneSourceRestores": [
     "anton.battery",
