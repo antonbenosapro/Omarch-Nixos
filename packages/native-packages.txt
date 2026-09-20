@@ -16,9 +16,8 @@ clang
 claws-mail
 cliamp
 cups
-cups-browsed
 cups-filters
-cups-pdf
+cups-pk-helper
 ddcutil
 deepin-calculator
 direnv
@@ -94,6 +93,8 @@ libyaml
 limine
 linux
 linux-firmware
+linux-omarchy
+linux-omarchy-headers
 llvm
 localsend
 lua51
