@@ -129,6 +129,7 @@ omawrite
 omazed
 pacman-contrib
 pamixer
+perplexity
 pinta
 pipewire
 pipewire-alsa
