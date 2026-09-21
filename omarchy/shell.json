@@ -1,7 +1,7 @@
 {
   "bar": {
     "centerAnchor": "omarchy.clock",
-    "id": "anton.bar",
+    "id": "omarchy.bar",
     "layout": {
       "center": [
         {
@@ -45,15 +45,15 @@
       ],
       "right": [
         {
-          "id": "omarchy.active-window"
-        },
-        {
           "id": "omarchy.tray",
           "pinned": [
             "TelegramDesktop",
             "indicator-timekpr"
           ],
           "hidden": []
+        },
+        {
+          "id": "omarchy.active-window"
         },
         {
           "id": "omarchy.tailscale"
@@ -78,8 +78,8 @@
         }
       ]
     },
-    "position": "left",
-    "transparent": true
+    "position": "top",
+    "transparent": false
   },
   "cloneSourceRestores": [
     "anton.battery",

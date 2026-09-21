@@ -162,6 +162,7 @@ sushi
 swtpm
 syncthing
 system-config-printer
+t3code-bin
 tailscale
 telegram-desktop
 tensaku
