@@ -18,6 +18,7 @@ cliamp
 cups
 cups-filters
 cups-pk-helper
+dash
 ddcutil
 deepin-calculator
 direnv
