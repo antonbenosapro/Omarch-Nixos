@@ -9,7 +9,7 @@
     "hideDelay": 400,
     "windowScope": "all"
   },
-  "autoHide": false,
+  "autoHide": true,
   "reserveSpace": true,
   "pinned": [
     "Alacritty",

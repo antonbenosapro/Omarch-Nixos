@@ -31,10 +31,10 @@
       ],
       "left": [
         {
-          "id": "omarchy.menu"
+          "id": "io.github.bubblepaxi.workspace-preview"
         },
         {
-          "id": "io.github.bubblepaxi.workspace-preview"
+          "id": "omarchy.menu"
         },
         {
           "id": "omarchy.workspaces"
@@ -79,7 +79,7 @@
       ]
     },
     "position": "top",
-    "transparent": true
+    "transparent": false
   },
   "cloneSourceRestores": [
     "anton.battery",
