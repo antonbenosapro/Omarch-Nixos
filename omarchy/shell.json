@@ -14,9 +14,6 @@
           "id": "omarchy.weather"
         },
         {
-          "id": "akshar.radio-atlas"
-        },
-        {
           "format": "ddd d MMM h:mm AP",
           "formatAlt": "d MMMM 'W'ww yyyy",
           "id": "omarchy.clock",
@@ -37,10 +34,13 @@
           "id": "omarchy.menu"
         },
         {
+          "id": "omarchy.media"
+        },
+        {
           "id": "omarchy.workspaces"
         },
         {
-          "id": "omarchy.media"
+          "id": "akshar.radio-atlas"
         }
       ],
       "right": [
@@ -79,7 +79,7 @@
       ]
     },
     "position": "top",
-    "transparent": false
+    "transparent": true
   },
   "cloneSourceRestores": [
     "anton.battery",
