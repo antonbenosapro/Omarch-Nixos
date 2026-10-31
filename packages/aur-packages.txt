@@ -1,6 +1,3 @@
-brave-bin
-google-chrome
-microsoft-edge-stable-bin
 sddm-astronaut-theme
 sddm-sugar-candy-git
 t4kcommon

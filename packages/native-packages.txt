@@ -9,6 +9,7 @@ bluez
 bluez-tools
 bluez-utils
 bolt
+brave-bin
 brightnessctl
 btop
 chromium
@@ -54,6 +55,7 @@ gnome-clocks
 gnome-disk-utility
 gnome-keyring
 gnome-themes-extra
+google-chrome
 gpu-screen-recorder
 grim
 gst-plugin-pipewire
@@ -102,6 +104,7 @@ lua51
 luarocks
 man-db
 mariadb-libs
+microsoft-edge-stable-bin
 minecraft-launcher
 mise-bin
 mkinitcpio
