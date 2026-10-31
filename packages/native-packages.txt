@@ -63,7 +63,6 @@ gvfs-mtp
 gvfs-nfs
 gvfs-smb
 helix
-herdr
 himalaya
 hyprland
 hyprland-guiutils
