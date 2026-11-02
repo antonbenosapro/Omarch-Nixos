@@ -45,12 +45,12 @@
       ],
       "right": [
         {
+          "hidden": [],
           "id": "omarchy.tray",
           "pinned": [
             "TelegramDesktop",
             "indicator-timekpr"
-          ],
-          "hidden": []
+          ]
         },
         {
           "id": "omarchy.active-window"
@@ -78,7 +78,7 @@
         }
       ]
     },
-    "position": "right",
+    "position": "top",
     "transparent": true
   },
   "cloneSourceRestores": [
