@@ -23,6 +23,7 @@ dash
 ddcutil
 deepin-calculator
 direnv
+disktree-bin
 dmidecode
 dnsmasq
 docker
@@ -30,7 +31,6 @@ docker-buildx
 docker-compose
 dosfstools
 dotnet-runtime
-dua-cli
 edk2-ovmf
 efibootmgr
 evince
@@ -40,7 +40,11 @@ eza
 falkon
 fastfetch
 fcitx5
+fcitx5-chewing
+fcitx5-chinese-addons
 fcitx5-gtk
+fcitx5-hangul
+fcitx5-mozc
 fcitx5-qt
 fd
 ffmpegthumbnailer
@@ -51,6 +55,7 @@ gcompris-qt
 geogebra
 ghostty
 git
+gliff
 gnome-clocks
 gnome-disk-utility
 gnome-keyring
@@ -64,6 +69,7 @@ gvfs-nfs
 gvfs-smb
 helix
 himalaya
+hype
 hyprland
 hyprland-guiutils
 hyprland-preview-share-picker
@@ -107,6 +113,7 @@ microsoft-edge-stable-bin
 minecraft-launcher
 mise-bin
 mkinitcpio
+monologue
 moonlight-qt
 mpv
 mpv-mpris
@@ -125,11 +132,16 @@ ollama
 omacalc
 omacut
 omarchy
+omarchy-hyprland-titlebars
 omarchy-keyring
 omarchy-nvim
+omarchy-power-profiles-daemon
 omarchy-settings
+omasnap
 omawrite
 omazed
+owe
+owe-lockfeed
 pacman-contrib
 pamixer
 perplexity
@@ -140,7 +152,6 @@ pipewire-jack
 pipewire-pulse
 plocate
 postgresql-libs
-power-profiles-daemon
 python-adblock
 python-gobject
 python-poetry-core
@@ -152,6 +163,7 @@ qutebrowser
 ripgrep
 ruby
 sddm
+signed
 slurp
 smartmontools
 snapshot
@@ -165,10 +177,8 @@ sushi
 swtpm
 syncthing
 system-config-printer
-t3code-bin
 tailscale
 telegram-desktop
-tensaku
 tesseract
 tesseract-data-eng
 thermald
@@ -186,6 +196,7 @@ ufw
 ufw-docker
 usage
 uwsm
+vi
 virt-manager
 virt-viewer
 voxtype-bin
@@ -201,6 +212,7 @@ wtype
 xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
 xdg-terminal-exec
+xorg-xsetroot
 xournalpp
 yaru-icon-theme
 yay
