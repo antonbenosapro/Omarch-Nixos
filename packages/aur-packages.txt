@@ -1,6 +1,9 @@
+ai.storyteller.vectorcraft
 herdr-bin
 sddm-astronaut-theme
 sddm-sugar-candy-git
+slicesquad
+slicesquad-debug
 t4kcommon
 t4kcommon-debug
 tuxmath
