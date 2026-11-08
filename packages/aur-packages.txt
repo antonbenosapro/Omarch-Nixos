@@ -1,4 +1,13 @@
+ai.storyteller.craft-anything
+ai.storyteller.deckcraft
+ai.storyteller.effectcraft
+ai.storyteller.figcraft
+ai.storyteller.filmcraft
+ai.storyteller.gridcraft
+ai.storyteller.lightcraft
+ai.storyteller.texturecraft
 ai.storyteller.vectorcraft
+ai.storyteller.wordcraft
 herdr-bin
 sddm-astronaut-theme
 sddm-sugar-candy-git
