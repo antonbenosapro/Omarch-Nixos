@@ -1,3 +1,4 @@
+ai.storyteller.cadcraft
 ai.storyteller.craft-anything
 ai.storyteller.deckcraft
 ai.storyteller.effectcraft
@@ -5,10 +6,13 @@ ai.storyteller.figcraft
 ai.storyteller.filmcraft
 ai.storyteller.gridcraft
 ai.storyteller.lightcraft
+ai.storyteller.materialcraft
+ai.storyteller.soundcraft
 ai.storyteller.texturecraft
 ai.storyteller.vectorcraft
 ai.storyteller.wordcraft
 herdr-bin
+io.tangencylabs.solidcraft
 sddm-astronaut-theme
 sddm-sugar-candy-git
 slicesquad
