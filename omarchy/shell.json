@@ -132,6 +132,9 @@
     },
     {
       "id": "wdg.dock"
+    },
+    {
+      "id": "io.voxtype.settings"
     }
   ],
   "version": 1
