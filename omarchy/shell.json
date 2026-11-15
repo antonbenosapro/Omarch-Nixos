@@ -1,5 +1,6 @@
 {
   "bar": {
+    "background": "glassy",
     "id": "omarchy.bar",
     "layout": {
       "center": [
@@ -8,6 +9,47 @@
           "formatAlt": "d MMMM 'W'ww yyyy",
           "id": "omarchy.clock",
           "verticalFormat": "HH\n—\nmm"
+        }
+      ],
+      "centerBegin": [
+        {
+          "id": "omarchy.system-update"
+        },
+        {
+          "id": "omarchy.weather"
+        }
+      ],
+      "centerEnd": [
+        {
+          "cities": [
+            {
+              "name": "Manila",
+              "zone": "Asia/Manila"
+            },
+            {
+              "name": "Los Angeles",
+              "zone": "America/Los_Angeles"
+            },
+            {
+              "name": "New York",
+              "zone": "America/New_York"
+            },
+            {
+              "name": "London",
+              "zone": "Europe/London"
+            },
+            {
+              "name": "Dubai",
+              "zone": "Asia/Dubai"
+            }
+          ],
+          "id": "omarchy.elsewhen"
+        },
+        {
+          "id": "omarchy.spacer"
+        },
+        {
+          "id": "omarchy.indicators"
         }
       ],
       "left": [
@@ -64,51 +106,9 @@
           "id": "omarchy.power"
         }
       ],
-      "centerBegin": [
-        {
-          "id": "omarchy.system-update"
-        },
-        {
-          "id": "omarchy.weather"
-        }
-      ],
-      "centerEnd": [
-        {
-          "id": "omarchy.elsewhen",
-          "cities": [
-            {
-              "name": "Manila",
-              "zone": "Asia/Manila"
-            },
-            {
-              "name": "Los Angeles",
-              "zone": "America/Los_Angeles"
-            },
-            {
-              "name": "New York",
-              "zone": "America/New_York"
-            },
-            {
-              "name": "London",
-              "zone": "Europe/London"
-            },
-            {
-              "name": "Dubai",
-              "zone": "Asia/Dubai"
-            }
-          ]
-        },
-        {
-          "id": "omarchy.spacer"
-        },
-        {
-          "id": "omarchy.indicators"
-        }
-      ],
       "tray": []
     },
-    "position": "top",
-    "transparent": false
+    "position": "top"
   },
   "cloneSourceRestores": [
     "anton.battery",
