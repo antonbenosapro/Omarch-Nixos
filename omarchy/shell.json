@@ -1,13 +1,13 @@
 {
   "bar": {
-    "background": "glassy",
+    "background": "opaque",
     "id": "omarchy.bar",
     "layout": {
       "center": [
         {
-          "format": "ddd d MMM h:mm AP",
-          "formatAlt": "d MMMM 'W'ww yyyy",
           "id": "omarchy.clock",
+          "format": "d MMMM 'W'ww yyyy",
+          "formatAlt": "d MMMM 'W'ww yyyy",
           "verticalFormat": "HH\n—\nmm"
         }
       ],
