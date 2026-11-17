@@ -131,7 +131,8 @@
       "YouTube",
       "ai.storyteller.effectcraft",
       "ai.storyteller.wordcraft",
-      "ai.storyteller.gridcraft"
+      "ai.storyteller.gridcraft",
+      "teams"
     ]
   },
   "idle": {
