@@ -3,14 +3,7 @@
     "background": "opaque",
     "id": "omarchy.bar",
     "layout": {
-      "center": [
-        {
-          "format": "d MMMM 'W'ww yyyy",
-          "formatAlt": "d MMMM 'W'ww yyyy",
-          "id": "omarchy.clock",
-          "verticalFormat": "HH\n—\nmm"
-        }
-      ],
+      "center": [],
       "centerBegin": [
         {
           "id": "omarchy.system-update"
